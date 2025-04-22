@@ -1,1 +1,1 @@
-# CSE587 Final Project
+# CSE 587 Final Project
