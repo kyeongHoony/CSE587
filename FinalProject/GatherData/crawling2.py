@@ -86,7 +86,7 @@ def get_abstract_from_acm(url):
 
 target_years = [2023]
 
-for year in target_years:  # ISCA 2007~2012
+for year in target_years: 
     all_papers = []
     print(f"\n Processing ISCA {year}...")
     papers = get_papers_from_dblp(year)
