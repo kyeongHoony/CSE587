@@ -5,52 +5,80 @@ import requests
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 
-save_dir = "isca_data"
-os.makedirs(save_dir, exist_ok=True)
-save_path = os.path.join(save_dir, "isca_abstracts.json")
+def convert_doi_to_acm_url(doi_url):
+    if doi_url.startswith("https://doi.org/"):
+        return doi_url.replace("https://doi.org", "https://dl.acm.org/doi")
+    return doi_url
 
-def get_isca_papers_from_dblp(year):
+save_dir = "ISCA_data"
+os.makedirs(save_dir, exist_ok=True)
+
+def get_papers_from_dblp(year):
     url = f"https://dblp.org/db/conf/isca/isca{year}.html"
-    html = requests.get(url).text
-    soup = BeautifulSoup(html, "html.parser")
+    res = requests.get(url)
+    soup = BeautifulSoup(res.text, "html.parser")
 
     papers = []
-    for entry in soup.find_all("cite", class_="data"):
+    for entry in soup.find_all("li", class_="entry inproceedings"):
         title_tag = entry.find("span", class_="title")
-        acm_anchor = entry.find("a", title="Electronic edition @ACM Digital Library")
-        if title_tag and acm_anchor:
-            papers.append({
-                "year": year,
-                "title": title_tag.get_text(),
-                "acm_url": acm_anchor['href']
-            })
+        if not title_tag:
+            continue
+        title = title_tag.text
+
+
+        pdf_url = None
+        for link in entry.find_all("a"):
+            href = link.get("href", "")
+            if "doi.org" in href or "acm.org" in href or "ieee.org" in href:
+                pdf_url = href
+                break
+
+        papers.append({
+            "title": title,
+            "paper_url": pdf_url
+        })
+        print(pdf_url)
+
     return papers
+   
 
 def get_abstract_from_acm(url):
     try:
-        headers = {"User-Agent": "Mozilla/5.0"}
+        headers = {
+            "User-Agent": "You need to type it"
+        }
         html = requests.get(url, headers=headers, timeout=10).text
         soup = BeautifulSoup(html, "html.parser")
+
+        
         abstract_div = soup.find("div", class_="abstractSection abstractInFull")
         if abstract_div:
             return abstract_div.get_text(strip=True)
-        else:
-            return None
+
+        
+        meta_abstract = soup.find("meta", attrs={"property": "og:description"})
+        if meta_abstract and meta_abstract.get("content"):
+            return meta_abstract["content"]
+
+        return None
+
     except Exception as e:
         print(f" Failed to fetch abstract from {url}: {e}")
         return None
 
-all_papers = []
-for year in range(2023, 2025):  
+for year in range(2007, 2008):  
+    all_papers = []
     print(f"\n Processing ISCA {year}...")
-    papers = get_isca_papers_from_dblp(year)
+    papers = get_papers_from_dblp(year)
     for paper in tqdm(papers):
-        abstract = get_abstract_from_acm(paper["acm_url"])
+        abstract = get_abstract_from_acm(paper["paper_url"])
         paper["abstract"] = abstract
         time.sleep(1.0)  
     all_papers.extend(papers)
 
-with open(save_path, "w", encoding="utf-8") as f:
-    json.dump(all_papers, f, indent=2, ensure_ascii=False)
+    save_path = os.path.join(save_dir, f"isca_{year}_abstracts.json")
 
-print(f"\n Abstracts saved to: {save_path}")
+    with open(save_path, "w", encoding="utf-8") as f:
+        json.dump(all_papers, f, indent=2, ensure_ascii=False)
+
+    print(f"\n Abstracts saved to: {save_path}")
