@@ -24,6 +24,5 @@ Based on this prompt, the model generate 2 - 3 questions.
 ## Data
 For test data, I used ISCA 2022 - 2024 paper.
 ## Colab Link
-This is the colab link for test data.
 https://colab.research.google.com/drive/1u261rF0L5K8ohHM_TyE_fzr66rRuIq7Z#scrollTo=r_3mp48tZpRC
 
