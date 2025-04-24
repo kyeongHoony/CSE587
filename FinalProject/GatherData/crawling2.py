@@ -88,7 +88,7 @@ target_years = [2023]
 
 for year in target_years:  # ISCA 2007~2012
     all_papers = []
-    print(f"\n📘 Processing ISCA {year}...")
+    print(f"\n Processing ISCA {year}...")
     papers = get_papers_from_dblp(year)
     for paper in tqdm(papers[70:]):
         print(f"Processing: {paper['paper_url']}")
@@ -99,7 +99,6 @@ for year in target_years:  # ISCA 2007~2012
 
     save_path = os.path.join(save_dir, f"isca_{year}_revised_abstracts.json")
 
-# ✅ JSON으로 저장
     with open(save_path, "w", encoding="utf-8") as f:
         json.dump(all_papers, f, indent=2, ensure_ascii=False)
 
