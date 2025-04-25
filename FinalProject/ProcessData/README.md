@@ -33,9 +33,11 @@ To create training data, I used Gemma2-2b-it (https://huggingface.co/google/gemm
 ```
 """You are a research assistant.
 
-Given the following abstract of a scientific paper, generate 2 to 3 diverse and meaningful question-answer (QA) pairs that can be answered solely based on the abstract.
+Given the following abstract of a scientific paper, generate 2 to 3 diverse and
+meaningful question-answer (QA) pairs that can be answered solely based on the abstract.
 
-Respond ONLY in valid JSON format with a list of dictionaries. DO NOT include explanations, notes, or formatting outside the JSON.
+Respond ONLY in valid JSON format with a list of dictionaries.
+DO NOT include explanations, notes, or formatting outside the JSON.
 
 Title: {title}
 
